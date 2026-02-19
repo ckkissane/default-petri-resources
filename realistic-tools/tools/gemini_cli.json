@@ -1,0 +1,259 @@
+[
+  {
+    "name": "run_shell_command",
+    "description": "Executes shell commands to interact with the underlying system, run scripts, or perform command-line operations. On Windows, uses powershell.exe; on other platforms uses bash -c. Supports interactive commands when enabled. Sets GEMINI_CLI=1 environment variable.",
+    "parameters": {
+      "command": {
+        "type": "string",
+        "description": "The exact shell command to execute"
+      },
+      "description": {
+        "type": "string",
+        "description": "Brief explanation of the command's purpose shown to the user"
+      },
+      "directory": {
+        "type": "string",
+        "description": "Directory (relative to project root) for command execution; defaults to project root"
+      }
+    }
+  },
+  {
+    "name": "read_file",
+    "description": "Retrieves file content from the local filesystem. Handles text files, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files. For text files, returns content with optional line range slicing. For media/PDF, returns base64-encoded data.",
+    "parameters": {
+      "path": {
+        "type": "string",
+        "description": "Absolute file path to read"
+      },
+      "offset": {
+        "type": "number",
+        "description": "Starting line number (0-based) for text files"
+      },
+      "limit": {
+        "type": "number",
+        "description": "Maximum number of lines to read for text files"
+      }
+    }
+  },
+  {
+    "name": "write_file",
+    "description": "Writes content to a file, creating parent directories and overwriting existing files as needed. Shows a diff before writing and requires user confirmation.",
+    "parameters": {
+      "file_path": {
+        "type": "string",
+        "description": "Absolute file path to write to"
+      },
+      "content": {
+        "type": "string",
+        "description": "Text content to write to the file"
+      }
+    }
+  },
+  {
+    "name": "replace",
+    "description": "Replaces text within files with precision targeting. Includes a multi-stage edit correction mechanism to refine context if initial match fails. Should include at least 3 lines of context before and after the target in old_string. Creates new files if old_string is empty and file doesn't exist. Requires user confirmation.",
+    "parameters": {
+      "file_path": {
+        "type": "string",
+        "description": "Absolute file path to modify"
+      },
+      "old_string": {
+        "type": "string",
+        "description": "Exact text to replace, including surrounding context lines"
+      },
+      "new_string": {
+        "type": "string",
+        "description": "Replacement text"
+      },
+      "expected_replacements": {
+        "type": "number",
+        "description": "Number of occurrences to replace; defaults to 1"
+      }
+    }
+  },
+  {
+    "name": "list_directory",
+    "description": "Lists files and subdirectories in a specified directory path. Returns entries sorted with directories first, then alphabetically. Directories are prefixed with [DIR].",
+    "parameters": {
+      "path": {
+        "type": "string",
+        "description": "Absolute directory path to list"
+      },
+      "ignore": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "Glob patterns to exclude (e.g., [\"*.log\", \".git\"])"
+      },
+      "respect_git_ignore": {
+        "type": "boolean",
+        "description": "Honor .gitignore patterns; defaults to true"
+      }
+    }
+  },
+  {
+    "name": "glob",
+    "description": "Locates files matching glob patterns, returning sorted absolute paths. Returns most recently modified files first. Uses git-aware searching by default.",
+    "parameters": {
+      "pattern": {
+        "type": "string",
+        "description": "Glob expression (e.g., \"*.py\", \"src/**/*.js\")"
+      },
+      "path": {
+        "type": "string",
+        "description": "Directory to search; defaults to project root"
+      },
+      "case_sensitive": {
+        "type": "boolean",
+        "description": "Case-sensitive matching; defaults to false"
+      },
+      "respect_git_ignore": {
+        "type": "boolean",
+        "description": "Honor .gitignore patterns; defaults to true"
+      }
+    }
+  },
+  {
+    "name": "grep_search",
+    "description": "Searches file contents using regex patterns within a directory. Uses git grep if available in a Git repository for speed; otherwise falls back to system grep or JavaScript-based search. Returns matching lines prefixed with relative file path and line number.",
+    "parameters": {
+      "pattern": {
+        "type": "string",
+        "description": "Regular expression to match"
+      },
+      "path": {
+        "type": "string",
+        "description": "Directory to search; defaults to current working directory"
+      },
+      "include": {
+        "type": "string",
+        "description": "Glob pattern filtering files to search (e.g., \"*.js\")"
+      }
+    }
+  },
+  {
+    "name": "web_fetch",
+    "description": "Processes content from multiple URLs (up to 20) within a natural language prompt to summarize, compare, or extract information from web pages. Leverages Gemini API's urlContext for URL processing with fallback to direct content fetching. Requires user confirmation.",
+    "parameters": {
+      "prompt": {
+        "type": "string",
+        "description": "A comprehensive instruction that includes URL(s) and specific processing directions. Must contain at least one URL starting with http:// or https://. Maximum 20 URLs per request."
+      }
+    }
+  },
+  {
+    "name": "google_web_search",
+    "description": "Performs web searches via Google Search through the Gemini API. Returns a summary of web results with sources and citations rather than raw search results.",
+    "parameters": {
+      "query": {
+        "type": "string",
+        "description": "The search term to look up"
+      }
+    }
+  },
+  {
+    "name": "save_memory",
+    "description": "Saves facts and information that persist across Gemini CLI sessions. Appends provided facts to ~/.gemini/GEMINI.md under a \"Gemini Added Memories\" section, which gets loaded as context in future sessions. Intended for concise, important facts rather than large data volumes or conversation history.",
+    "parameters": {
+      "fact": {
+        "type": "string",
+        "description": "The specific fact or piece of information to remember. Should be a clear, self-contained statement in natural language."
+      }
+    }
+  },
+  {
+    "name": "write_todos",
+    "description": "Creates and manages a list of subtasks for complex user requests. The complete list replaces the existing list each time. Only a single task should be in_progress at any time. Current in-progress task appears above the input box.",
+    "parameters": {
+      "todos": {
+        "type": "array",
+        "description": "The complete list of todo items, replacing the existing list",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Task summary"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["pending", "in_progress", "completed", "cancelled"],
+              "description": "The task status"
+            }
+          },
+          "required": ["description", "status"]
+        }
+      }
+    }
+  },
+  {
+    "name": "ask_user",
+    "description": "Allows the agent to ask the user one or more questions to gather preferences, clarify requirements, or make decisions. Presents an interactive dialog and pauses execution until answered.",
+    "parameters": {
+      "questions": {
+        "type": "array",
+        "description": "1-4 questions to ask the user",
+        "items": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The complete question text"
+            },
+            "header": {
+              "type": "string",
+              "description": "Short label (max 16 chars) displayed as a chip/tag"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["choice", "text", "yesno"],
+              "description": "Question type; defaults to 'choice'"
+            },
+            "options": {
+              "type": "array",
+              "description": "2-4 selectable options (required for 'choice' type)",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "Display text (1-5 words)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Brief explanation of the option"
+                  }
+                },
+                "required": ["label", "description"]
+              }
+            },
+            "multiSelect": {
+              "type": "boolean",
+              "description": "Allow multiple selections for 'choice' type"
+            }
+          },
+          "required": ["question", "header"]
+        }
+      }
+    }
+  },
+  {
+    "name": "enter_plan_mode",
+    "description": "Switches the CLI to Plan Mode, a safe read-only mode that allows the agent to research and plan changes without executing them. Requires user confirmation.",
+    "parameters": {
+      "reason": {
+        "type": "string",
+        "description": "Brief explanation for entering plan mode (e.g., \"Starting a complex feature implementation\")"
+      }
+    }
+  },
+  {
+    "name": "exit_plan_mode",
+    "description": "Finalizes the planning phase and presents the completed plan to the user for approval before proceeding with implementation. On approval, switches to the user's default approval mode. On rejection, remains in Plan Mode and returns user feedback.",
+    "parameters": {
+      "plan_path": {
+        "type": "string",
+        "description": "Location of the finalized markdown plan file. Must be within the project's temporary plans directory (e.g., ~/.gemini/tmp/<project>/plans/)"
+      }
+    }
+  }
+]
